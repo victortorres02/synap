@@ -40,11 +40,6 @@ typedef struct {
 	uint64_t owner_pay, developer_pay, validator_pay;
 } FinishProposal;
 
-typedef struct {
-	bool conflicted;
-	uint8_t signatures[];
-} FinishSignatures;
-
 enum ActionId {
 	ActCreateProject,
 	ActAbortProject,
@@ -302,7 +297,7 @@ extern uint64_t begin_conflict(SolParameters *params){
                     &signers_seeds, 1);
 }
 
-extern uint64_t sign_proposal(SolParameters *params){
+extern uint64_t create_proposal(SolParameters *params){
     if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
     }
@@ -325,7 +320,7 @@ extern uint64_t sign_proposal(SolParameters *params){
 
 }
 
-extern uint64_t create_proposal(SolParameters *params){
+extern uint64_t sign_proposal(SolParameters *params){
     if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
     }
@@ -348,17 +343,6 @@ extern uint64_t create_proposal(SolParameters *params){
 
     if (!SolPubkey_same(signature->owner, &project_details->validators[index])) {
 	    return ERROR_INVALID_ARGUMENT;
-    }
-
-    for (FinishSignatures *sig = state->data; sig-state->data < state->data_len;)
-    {
-	    +i;
-	    for (size_t ii=0; i < )
-	    if (index == 0)
-	    {
-		    state->data[index/8] |= 1 << (index%8);
-		    break;
-	    }
     }
 
     if (!check_all_verifiers_accepted(state->data, project_details->num_validators))
