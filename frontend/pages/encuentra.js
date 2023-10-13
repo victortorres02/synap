@@ -42,8 +42,8 @@ export default function main() {
             <div>
                 <div style={{ margin: '20px 0 0 80px', fontSize: '20px' }}>
                     <h3>Publica tu Proyecto</h3>
-                    <a style={{ margin: '0 0 0 100px', fontSize: '20px' }} className="w3-button w3-dark-grey" href="https://www.w3schools.com/w3css/default.asp">
-                        <i className="fa fa-search w3-margin-right">Busco proyectos para desarrollar</i>
+                    <a style={{ margin: '0 0 0 100px', fontSize: '20px' }} className="w3-button w3-dark-grey" href="./crearProyecto">
+                        <i className="fa fa-search w3-margin-right">Crear Proyecto</i>
                     </a>
                 </div>
             </div>
