@@ -1,0 +1,28 @@
+{
+    "Proyectos": [
+        {
+            "title": "Backend para aplicación de blockchain Solana",
+            "description": "Se busca a un desarrollador experimentado en Rust y en la red Solana",
+            "offer": "$20",
+            "category": ""
+        },
+        {
+            "title": "Videojuego de plataformas 2D",
+            "description": "Se busca un desarrollador capacitado en Unity para hacer un juego en plataformas 2D",
+            "offer": "$60",
+            "category": ""
+        },
+        {
+            "title": "Aplicación iOS",
+            "description": "Necesito una aplicación en iOS para negocio de frutas y verduras",
+            "offer": "$100",
+            "category": ""
+        },
+        {
+            "title": "Elaboración de Contratos en C o C++",
+            "description": "Necesito hacer SmartContracts en Rust",
+            "offer": "$150",
+            "category": ""
+        }
+    ]
+}
