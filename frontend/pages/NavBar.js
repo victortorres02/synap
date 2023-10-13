@@ -1,6 +1,6 @@
 import React from 'react';
 
-function NavBar() {
+export default function NavBar() {
     return (
         <div class="w3-bar w3-white w3-large">
             <a href="./main" class="w3-bar-item w3-button w3-blue w3-mobile"><i class="fa fa-bed w3-margin-right"></i>Logo</a>
