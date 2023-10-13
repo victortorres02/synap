@@ -20,6 +20,7 @@ import {
     Textarea
 } from '@chakra-ui/react'
 
+// Modal de cuando se vaya a entregar el archivo final del Proyecto se envíe.
 export default function Entregar() {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -59,6 +60,7 @@ export default function Entregar() {
     )
 }
 
+// Función donde el usuario verificador acepta la transacción del cliente al autorizar que si se realizó bien la actividad.
 function Verificar() {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -99,6 +101,7 @@ function Verificar() {
     )
 }
 
+// Cuando se rechaza un proyecto aquí está función aparece para ingresar los motivos.
 function Problema() {
 
     const { isOpen, onOpen, onClose } = useDisclosure()

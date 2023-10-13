@@ -2,6 +2,8 @@ import { NavBar } from "./NavBar"
 import candidates from '../pages/store/candidates.json';
 import { Footer } from "./footer";
 
+
+//Esta funcion lo que hace es dibujar las formas de los Programadores para que se puedan visualizar.
 function Desarrollador({ name, rating, imagen }) {
     return (
         <div className="w3-third w3-margin-bottom" style={{borderRadius:'100px'}}>
@@ -20,6 +22,7 @@ function Desarrollador({ name, rating, imagen }) {
     )
 }
 
+// Dentro de la función se busca dentro del JSON para poder dibujar los perfiles de los usuarios.
 function Encuentra() {
     return (
         <div className="w3-row-padding w3-padding-16">
@@ -34,6 +37,7 @@ function Encuentra() {
     )
 }
 
+// Función principal de la forma donde se dibuja todos los elementos principales.
 export default function main() {
     return (
         <div class="w3-black">

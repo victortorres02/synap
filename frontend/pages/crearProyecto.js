@@ -17,6 +17,7 @@ const SOLANA_NETWORK = "devnet";
 
 function Formulario() {
 
+    //Estructura de un formData para posteriormente subirla como un json
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -24,6 +25,7 @@ function Formulario() {
         category: 'option1', // Valor predeterminado para la categoría
     });
 
+    // Función para hacer la transferencia de los Tokens
     const [publicKey, setPublicKey] = useState(null);
     const [balance, setBalance] = useState(0);
     const [receiver, setReceiver] = useState("5kHiGeCXizCGdmaj6pvXFxfsT5KyVZwXRWNCZcpAzDNx");
@@ -76,6 +78,7 @@ function Formulario() {
         sessionStorage.setItem("projects", JSON.stringify(jsonData));
     };
 
+    // Imprime los valores que se van a enviar y procede a iniciar la transferencia.
     const handleSubmitTransaction = async (e) => {
         handleSubmit(e);
         console.log("Este es el receptor", receiver);
@@ -83,6 +86,7 @@ function Formulario() {
         sendTransaction();
     };
 
+    // Obtiene la cantidad que tienen en la cartera del usuario.
     const getBalances = async (publicKey) => {
         try {
             const connection = new Connection(
@@ -180,6 +184,7 @@ function Formulario() {
         }
     };
 
+    //Aquí se realiza la función que sube el JSON y de paso se realiza la transferencia.
     return (
         <form onSubmit={handleSubmitTransaction}>
             <div>
@@ -205,6 +210,8 @@ function Formulario() {
     )
 }
 
+
+// Dibuja la forma principal del documento.
 export default function main() {
     return (
         <div class="w3-black">

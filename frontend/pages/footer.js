@@ -1,5 +1,6 @@
 import React from "react";
 
+// Esto es el pie de la página donde se cargan los datos.
 export default function Footer() {
     return (
         <footer className="w3-padding-32 w3-black w3-center w3-margin-top">

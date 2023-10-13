@@ -2,6 +2,7 @@ import { NavBar } from "./NavBar"
 import { Grid, GridItem, Input, Textarea, Select } from '@chakra-ui/react'
 import { Footer } from "./footer"
 
+//Esta es la parte principal de la página, donde se muestran los datos de quienes somos y muestra dos botones de navegación rápida.
 function Header() {
     return (
         <div style={{ padding: '20px' }}>
@@ -30,6 +31,7 @@ function Header() {
     )
 }
 
+//Función principal donde se dibuja toda la página.
 export default function Main() {
     return (
         <div class="w3-black">

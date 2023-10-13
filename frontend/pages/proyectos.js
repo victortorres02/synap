@@ -3,6 +3,7 @@ import { NavBar } from './NavBar';
 import { Footer } from './footer';
 import { Button } from '@chakra-ui/button';
 
+//En esta función de dibujan verticalmente todos los datos de un proyecto, desde su nombre, descripción hasta del financiamiento.
 const Proyectos = () => {
     const rowStyle = {
         height: '160px',

@@ -5,6 +5,7 @@ import { Entregar, Verificar } from "./modal"
 import { Proyectos } from "./carga";
 import { Footer } from "./footer";
 
+// Carga los datos de los proyectos para después entregarlos y así pasar la actividad por Link
 function Descripcion() {
     return (
         <div>
@@ -23,6 +24,7 @@ function Descripcion() {
     )
 }
 
+// La función Main dibuja lo principal, siendo una columna de Proyectos y una columna de la descripción del proyecto donde lo puedes subir.
 export default function main() {
     return (
         <div class="w3-black">
