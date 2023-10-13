@@ -7,9 +7,17 @@ typedef struct {
     uint64_t amount;
     char creation_date[64];
     SolPubkey owner, developer;
+    uint8_t state;
     uint8_t num_validators;
     SolPubkey validators[];
 } ProjectDetails;
+
+enum ProjectState {
+	StateOpen,
+	StateBidding,
+	StateClosed,
+	StateFinished,
+};
 
 enum ActionId {
 	ActCreateProject,
@@ -24,6 +32,14 @@ enum ActionId {
 
 const uint8_t init_seed[] = {'s', 'y', 'n', 'a', 'p', 's', 'i', 's', 's', 'e', 'e', 'd', };
 const uint8_t valbits_seed[] = {'s', 'y', 'n', 'a', 'p', '_', 's', 't', 'a', 't', 'e', '!', };
+
+bool check_all_verifiers_accepted(uint8_t* data, size_t size)
+{
+	for (size_t i=0; i < size; ++i)
+		if (data[i/8]&(1<<(i%8)))
+			return false;
+	return true;
+}
 
 extern uint64_t create_project(SolParameters *params){
     if (params->ka_num != 3){
@@ -43,7 +59,7 @@ extern uint64_t create_project(SolParameters *params){
 	    return ERROR_INVALID_ARGUMENT;
     }
 
-    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
+    SolAccountMeta arguments[] = {{ source_info->owner, true, true }};
 
     SolSignerSeeds signers_seeds = {init_seed, SOL_ARRAY_SIZE(init_seed)};
 
@@ -86,17 +102,20 @@ extern uint64_t accept_ver_role(SolParameters *params) {
     if (!SolPubkey_same(source_info->owner, state->owner))
 	    return ERROR_INVALID_ARGUMENT;
 
-    ProjectDetails project_details = *(ProjectDetails*)&params->ka[1].data;
+    ProjectDetails *project_details = (ProjectDetails*)pj->data;
+
+    if (project_details->state != StateOpen)
+	    return ERROR_INVALID_ARGUMENT;
 
     uint8_t index = *signature->data;
 
-    if (!SolPubkey_same(signature->owner, &project_details.validators[index])){
+    if (!SolPubkey_same(signature->owner, &project_details->validators[index])){
         return ERROR_INVALID_ARGUMENT;
     }
 
     state->data[index/8] |= 1 << (index%8);
 
-    if (!check_all_bits_1(state_data, project_details->num_validators))
+    if (!check_all_verifiers_accepted(state->data, project_details->num_validators))
     {
 	    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
 
@@ -113,6 +132,17 @@ extern uint64_t accept_ver_role(SolParameters *params) {
     else
     {
 	    // Change to bidding state
+	    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
+
+	    SolSignerSeeds signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
+
+	    SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
+		    SOL_ARRAY_SIZE(arguments), state->data,
+		    state->data_len};
+
+	    // temporary validator state
+	    return sol_invoke_signed(&instruction, params->ka, params->ka_num,
+					   &signers_seeds, 1);
     }
 }
 
