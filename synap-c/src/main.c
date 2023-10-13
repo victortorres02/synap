@@ -316,8 +316,20 @@ extern uint64_t create_proposal(SolParameters *params){
         return ERROR_INVALID_ARGUMENT;
     }
 
-    // TODO:STATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    FinishProposal *proposal = state->data;
+    FinishSignatures *sigs = sol_calloc(sizeof(FinishSignatures)+(2+project_details->num_validators+7)/8, 1);
 
+    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
+
+    SolSignerSeeds signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
+
+    SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
+        SOL_ARRAY_SIZE(arguments), sigs,
+        sizeof(FinishSignatures)+(2+project_details->num_validators+7)/8};
+
+    // temporary validator state
+    return sol_invoke_signed(&instruction, params->ka, params->ka_num,
+                    &signers_seeds, 1);
 }
 
 extern uint64_t sign_proposal(SolParameters *params){
