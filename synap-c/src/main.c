@@ -206,6 +206,45 @@ extern uint64_t begin_bid(SolParameters *params){
                     &signers_seeds, 1);
 }
 
+extern uint64_t select_bid(SolParameters *params){
+    if (params->ka_num != 4){
+        return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
+    }
+
+    SolAccountInfo *source_info = &params->ka[0];
+    SolAccountInfo *pj = &params->ka[1];
+    SolAccountInfo *state = &params->ka[2];
+    SolAccountInfo *selected_bidder = &params->ka[3];
+
+    if (!SolPubkey_same(source_info->owner, pj->owner))
+	    return ERROR_INVALID_ARGUMENT;
+
+    if (!SolPubkey_same(selected_bidder->owner, pj->owner))
+	    return ERROR_INVALID_ARGUMENT;
+
+    ProjectDetails *project_details = (ProjectDetails*)pj->data;
+
+    if (project_details->state != StateOpen){
+        return ERROR_INVALID_ARGUMENT;
+    }
+
+    project_details->state = StateBidding;
+
+    project_details->developer = selected_bidder->key;
+
+    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
+
+    SolSignerSeeds signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
+
+    SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
+        SOL_ARRAY_SIZE(arguments), state->data,
+        state->data_len};
+
+    // temporary validator state
+    return sol_invoke_signed(&instruction, params->ka, params->ka_num,
+                    &signers_seeds, 1);
+}
+
 extern uint64_t entrypoint(const uint8_t *input) {
   SolAccountInfo accounts[4];
   SolParameters params = (SolParameters){.ka = accounts};
@@ -227,5 +266,7 @@ extern uint64_t entrypoint(const uint8_t *input) {
 		  return accept_ver_role(&params);
 	  case ActBeginBid:
 		  return begin_bid(&params);
+      case ActSelectBid:
+          return select_bid(&params);
   }
 }
