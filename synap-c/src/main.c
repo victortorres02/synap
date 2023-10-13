@@ -12,6 +12,16 @@ typedef struct {
     SolPubkey validators[];
 } ProjectDetails;
 
+typedef struct {
+    uint64_t amount;
+    SolPubkey bidder;
+} BidInfo;
+
+typedef struct {
+    uint8_t num_bidders;
+    BidInfo bidders[];
+} BidState;
+
 enum ProjectState {
 	StateOpen,
 	StateBidding,
@@ -77,7 +87,7 @@ extern uint64_t create_project(SolParameters *params){
 
     signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
 
-    size_t bits_len = (project_proposal->num_validators+7)*8;
+    size_t bits_len = (project_proposal->num_validators+7)/8;
     void* bits = sol_calloc(bits_len, 1);
 
     instruction = (SolInstruction) {source_info->key, arguments,
@@ -149,6 +159,52 @@ extern uint64_t accept_ver_role(SolParameters *params) {
     }
 }
 
+extern uint64_t begin_bid(SolParameters *params){
+    if(params->ka_num != 4){
+        return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
+    }
+
+    SolAccountInfo *source_info = &params->ka[0];
+    SolAccountInfo *pj = &params->ka[1];
+    SolAccountInfo *state = &params->ka[2];
+    SolAccountInfo *info = &params->ka[3];
+
+    if (!SolPubkey_same(source_info->owner, pj->owner))
+	    return ERROR_INVALID_ARGUMENT;
+
+    if (!SolPubkey_same(source_info->owner, state->owner))
+	    return ERROR_INVALID_ARGUMENT;
+
+    ProjectDetails *project_details = (ProjectDetails*)pj->data;
+
+    if (project_details->state != StateOpen)
+        return ERROR_INVALID_ARGUMENT;
+
+    BidState *bid_state = (BidState*)state->data;
+
+    if (bid_state->num_bidders > 255){
+        return ERROR_INVALID_ARGUMENT;
+    }
+
+    BidInfo *bid_info = (BidInfo*)info->data;
+
+    void* new_state = malloc((++bid_state->num_bidders) * sizeof(bid_info)));
+    memcpy(bid_state, new_state, (bid_state->num_bidders - 1) * sizeof(bid_info));
+
+    memcpy(bid_info, new_state+(bid_state->num_bidders - 1) * sizeof(bid_info), sizeof(BidInfo));
+
+    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
+
+    SolSignerSeeds signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
+
+    SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
+        SOL_ARRAY_SIZE(arguments), new_state,
+        bid_state->num_bidders * sizeof(bid_info);
+
+    // temporary validator state
+    return sol_invoke_signed(&instruction, params->ka, params->ka_num,
+                    &signers_seeds, 1);
+}
 
 extern uint64_t entrypoint(const uint8_t *input) {
   SolAccountInfo accounts[4];
