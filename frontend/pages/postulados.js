@@ -1,5 +1,6 @@
 import { NavBar } from "./NavBar";
 import candidates from '../pages/store/candidates.json';
+import { Footer } from "./footer";
 
 function Desarrollador({name, rating, imagen}) {
     return (
@@ -44,6 +45,7 @@ export default function main() {
             <div>
                 
             </div>
+            <Footer />
         </div>
     )
 }
