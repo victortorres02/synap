@@ -40,6 +40,11 @@ typedef struct {
 	uint64_t owner_pay, developer_pay, validator_pay;
 } FinishProposal;
 
+typedef struct {
+	bool conflicted;
+	uint8_t signatures[];
+} FinishSignatures;
+
 enum ActionId {
 	ActCreateProject,
 	ActAbortProject,
@@ -297,22 +302,95 @@ extern uint64_t begin_conflict(SolParameters *params){
                     &signers_seeds, 1);
 }
 
-FinishProposal *next_proposal(FinishProposal *proposal, const ProjectDetails *project_details) {
-	return (char*)(proposal + 1) + project_details->num_validators*sizeof(FinishProposal);
+extern uint64_t sign_proposal(SolParameters *params){
+    if (params->ka_num != 4){
+        return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
+    }
+
+    SolAccountInfo *source_info = &params->ka[0];
+    SolAccountInfo *pj = &params->ka[1];
+    SolAccountInfo *state = &params->ka[2];
+    SolAccountInfo *signature = &params->ka[3];
+
+    if (!SolPubkey_same(source_info->owner, pj->owner))
+	    return ERROR_INVALID_ARGUMENT;
+
+    ProjectDetails *project_details = (ProjectDetails*)pj->data;
+
+    if (project_details->state != StateClosed) {
+        return ERROR_INVALID_ARGUMENT;
+    }
+
+    // TODO:STATE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 }
 
-extern uint64_t entrypoint(const uint8_t *input) {
-  SolAccountInfo accounts[4];
-  SolParameters params = (SolParameters){.ka = accounts};
-  
-  if (!sol_deserialize(input, &params, SOL_ARRAY_SIZE(accounts))) {
-    return ERROR_INVALID_ARGUMENT;
-  }
+extern uint64_t create_proposal(SolParameters *params){
+    if (params->ka_num != 4){
+        return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
+    }
+    
+    SolAccountInfo *source_info = &params->ka[0];
+    SolAccountInfo *pj = &params->ka[1];
+    SolAccountInfo *state = &params->ka[2];
+    SolAccountInfo *signature = &params->ka[3];
 
-  if (params.ka_num < 1)
-	  return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
+    if (!SolPubkey_same(source_info->owner, pj->owner))
+	    return ERROR_INVALID_ARGUMENT;
 
-  uint8_t action_id = *(uint8_t*)&params.ka[0];
+    ProjectDetails *project_details = (ProjectDetails*)pj->data;
+
+    if (project_details->state != StateBidding) {
+        return ERROR_INVALID_ARGUMENT;
+    }
+
+    uint8_t index = *(uint8_t*)signature->data;
+
+    if (!SolPubkey_same(signature->owner, &project_details->validators[index])) {
+	    return ERROR_INVALID_ARGUMENT;
+    }
+
+    for (FinishSignatures *sig = state->data; sig-state->data < state->data_len;)
+    {
+	    +i;
+	    for (size_t ii=0; i < )
+	    if (index == 0)
+	    {
+		    state->data[index/8] |= 1 << (index%8);
+		    break;
+	    }
+    }
+
+    if (!check_all_verifiers_accepted(state->data, project_details->num_validators))
+    {
+	    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
+
+	    SolSignerSeeds signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
+
+	    SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
+		    SOL_ARRAY_SIZE(arguments), state->data,
+		    state->data_len};
+
+	    // temporary validator state
+	    return sol_invoke_signed(&instruction, params->ka, params->ka_num,
+					   &signers_seeds, 1);
+    }
+    else
+    {
+	    // Change to bidding state
+	    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
+
+	    SolSignerSeeds signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
+
+	    SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
+		    SOL_ARRAY_SIZE(arguments), state->data,
+		    state->data_len};
+
+	    // temporary validator state
+	    return sol_invoke_signed(&instruction, params->ka, params->ka_num,
+					   &signers_seeds, 1);
+    }
+}
 
   switch (action_id)
   {
