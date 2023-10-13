@@ -42,7 +42,7 @@ bool check_all_verifiers_accepted(uint8_t* data, size_t size)
 }
 
 extern uint64_t create_project(SolParameters *params){
-    if (params->ka_num != 3){
+    if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
     }
     
@@ -53,6 +53,9 @@ extern uint64_t create_project(SolParameters *params){
 	    return ERROR_INVALID_ARGUMENT;
 
     ProjectDetails *project_proposal = (ProjectDetails*)pr->data;
+
+    if (!SolPubkey_same(pr->owner, &project_proposal->owner))
+	    return ERROR_INVALID_ARGUMENT;
 
     if (project_proposal->num_validators*sizeof(SolPubkey) + sizeof(ProjectDetails) < pr->data_len)
     {
@@ -87,7 +90,7 @@ extern uint64_t create_project(SolParameters *params){
 }
 
 extern uint64_t accept_ver_role(SolParameters *params) {
-    if (params->ka_num != 3){
+    if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
     }
     
