@@ -14,6 +14,7 @@ typedef struct {
     SolPubkey owner, developer;
     Fraction validator_needed_percentage;
     uint8_t state;
+    bool conflict;
     uint8_t num_validators;
     SolPubkey validators[];
 } ProjectDetails;
@@ -36,7 +37,7 @@ enum ProjectState {
 };
 
 typedef struct {
-	unsigned owner_percentage, developer_percentage;
+	uint64_t owner_pay, developer_pay, validator_pay;
 } FinishProposal;
 
 enum ActionId {
@@ -82,6 +83,9 @@ extern uint64_t create_project(SolParameters *params){
     {
 	    return ERROR_INVALID_ARGUMENT;
     }
+
+    if (project_proposal->num_validators >= 253)
+	    return ERROR_INVALID_ARGUMENT;
 
     SolAccountMeta arguments[] = {{ source_info->owner, true, true }};
 
@@ -254,6 +258,47 @@ extern uint64_t select_bid(SolParameters *params){
     // temporary validator state
     return sol_invoke_signed(&instruction, params->ka, params->ka_num,
                     &signers_seeds, 1);
+}
+
+extern uint64_t begin_conflict(SolParameters *params){
+    if (params->ka_num != 4){
+        return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
+    }
+
+    SolAccountInfo *source_info = &params->ka[0];
+    SolAccountInfo *pj = &params->ka[1];
+    SolAccountInfo *signature = &params->ka[3];
+
+    if (!SolPubkey_same(source_info->owner, pj->owner))
+	    return ERROR_INVALID_ARGUMENT;
+
+    ProjectDetails *project_details = (ProjectDetails*)pj->data;
+
+    if (project_details->state != StateBidding) {
+        return ERROR_INVALID_ARGUMENT;
+    }
+
+    if (!SolPubkey_same(signature->owner, &project_details->owner)
+	&& !SolPubkey_same(signature->owner, &project_details->developer))
+	    return ERROR_INVALID_ARGUMENT;
+
+    project_details->conflict = true;
+
+    SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
+
+    SolSignerSeeds signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
+
+    SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
+        SOL_ARRAY_SIZE(arguments), &project_details,
+        pj->data_len};
+
+    // temporary validator state
+    return sol_invoke_signed(&instruction, params->ka, params->ka_num,
+                    &signers_seeds, 1);
+}
+
+FinishProposal *next_proposal(FinishProposal *proposal, const ProjectDetails *project_details) {
+	return (char*)(proposal + 1) + project_details->num_validators*sizeof(FinishProposal);
 }
 
 extern uint64_t entrypoint(const uint8_t *input) {
