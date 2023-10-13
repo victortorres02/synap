@@ -9,10 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@hellomoon/api": "1.17.4",
     "@metaplex-foundation/js": "0.19.5",
     "@solana/web3.js": "1.87.1",
     "@thirdweb-dev/react": "3.14.35",
+    "framer-motion": "^10.16.4",
     "next": "13.5.4",
     "next-connect": "0.13.0",
     "react": "18.2.0",
