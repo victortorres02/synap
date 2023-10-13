@@ -20,7 +20,7 @@ import {
     Textarea
 } from '@chakra-ui/react'
 
-function Entregar() {
+export default function Entregar() {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
 
