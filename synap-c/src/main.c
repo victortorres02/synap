@@ -316,8 +316,7 @@ extern uint64_t create_proposal(SolParameters *params){
         return ERROR_INVALID_ARGUMENT;
     }
 
-    FinishProposal *proposal = state->data;
-    FinishSignatures *sigs = sol_calloc(sizeof(FinishSignatures)+(2+project_details->num_validators+7)/8, 1);
+    uint8_t  *sigs = sol_calloc((2+project_details->num_validators+7)/8, 1);
 
     SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
 
@@ -325,7 +324,7 @@ extern uint64_t create_proposal(SolParameters *params){
 
     SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
         SOL_ARRAY_SIZE(arguments), sigs,
-        sizeof(FinishSignatures)+(2+project_details->num_validators+7)/8};
+        (2+project_details->num_validators+7)/8};
 
     // temporary validator state
     return sol_invoke_signed(&instruction, params->ka, params->ka_num,
@@ -356,6 +355,8 @@ extern uint64_t sign_proposal(SolParameters *params){
     if (!SolPubkey_same(signature->owner, &project_details->validators[index])) {
 	    return ERROR_INVALID_ARGUMENT;
     }
+
+    state->data[index/8] |= 1 << (index%8);
 
     if (!check_all_verifiers_accepted(state->data, project_details->num_validators))
     {
@@ -388,6 +389,19 @@ extern uint64_t sign_proposal(SolParameters *params){
     }
 }
 
+extern uint64_t entrypoint(const uint8_t *input) {
+  SolAccountInfo accounts[4];
+  SolParameters params = (SolParameters){.ka = accounts};
+
+  if (!sol_deserialize(input, &params, SOL_ARRAY_SIZE(accounts))) {
+    return ERROR_INVALID_ARGUMENT;
+  }
+
+  if (params.ka_num < 1)
+          return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
+
+  uint8_t action_id = *(uint8_t*)&params.ka[0];
+
   switch (action_id)
   {
 	  case ActCreateProject:
@@ -404,5 +418,7 @@ extern uint64_t sign_proposal(SolParameters *params){
 		  return sign_proposal(&params);
 	  case ActBeginConflict:
 		  return begin_conflict(&params);
+	  default:
+		  return ERROR_INVALID_ARGUMENT;
   }
 }
