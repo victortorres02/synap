@@ -2,11 +2,17 @@
 #include <string.h>
 
 typedef struct {
+	int32_t numerator;
+	uint32_t denominator;
+} Fraction;
+
+typedef struct {
     char name[64];
     char description[2048];
     uint64_t amount;
     char creation_date[64];
     SolPubkey owner, developer;
+    Fraction validator_needed_percentage;
     uint8_t state;
     uint8_t num_validators;
     SolPubkey validators[];
@@ -29,6 +35,10 @@ enum ProjectState {
 	StateFinished,
 };
 
+typedef struct {
+	unsigned owner_percentage, developer_percentage;
+} FinishProposal;
+
 enum ActionId {
 	ActCreateProject,
 	ActAbortProject,
@@ -39,6 +49,7 @@ enum ActionId {
 	ActSignProposal,
 	ActBeginConflict,
 };
+
 
 const uint8_t init_seed[] = {'s', 'y', 'n', 'a', 'p', 's', 'i', 's', 's', 'e', 'e', 'd', };
 const uint8_t valbits_seed[] = {'s', 'y', 'n', 'a', 'p', '_', 's', 't', 'a', 't', 'e', '!', };
@@ -219,18 +230,18 @@ extern uint64_t select_bid(SolParameters *params){
     if (!SolPubkey_same(source_info->owner, pj->owner))
 	    return ERROR_INVALID_ARGUMENT;
 
-    if (!SolPubkey_same(selected_bidder->owner, pj->owner))
-	    return ERROR_INVALID_ARGUMENT;
-
     ProjectDetails *project_details = (ProjectDetails*)pj->data;
 
-    if (project_details->state != StateOpen){
+    if (project_details->state != StateBidding) {
         return ERROR_INVALID_ARGUMENT;
     }
 
-    project_details->state = StateBidding;
+    if (!SolPubkey_same(selected_bidder->owner, pj->owner))
+	    return ERROR_INVALID_ARGUMENT;
 
-    project_details->developer = selected_bidder->key;
+    project_details->state = StateClosed;
+
+    project_details->developer = *selected_bidder->key;
 
     SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
 
@@ -266,7 +277,13 @@ extern uint64_t entrypoint(const uint8_t *input) {
 		  return accept_ver_role(&params);
 	  case ActBeginBid:
 		  return begin_bid(&params);
-      case ActSelectBid:
-          return select_bid(&params);
+	  case ActSelectBid:
+		  return select_bid(&params);
+	  case ActCreateProposal:
+		  return create_proposal(&params);
+	  case ActSignProposal:
+		  return sign_proposal(&params);
+	  case ActBeginConflict:
+		  return begin_conflict(&params);
   }
 }
