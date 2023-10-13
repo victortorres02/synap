@@ -19,26 +19,30 @@ typedef struct {
     SolPubkey validators[];
 } ProjectDetails;
 
+// ** Arguments for the contract actions **
 typedef struct {
     uint64_t amount;
     SolPubkey bidder;
 } BidInfo;
 
 typedef struct {
+	uint64_t owner_pay, developer_pay, validator_pay;
+} FinishProposal;
+
+// ** Project temporal state structs **
+typedef struct {
     uint8_t num_bidders;
     BidInfo bidders[];
 } BidState;
 
+
+// ** enums **
 enum ProjectState {
 	StateOpen,
 	StateBidding,
 	StateClosed,
 	StateFinished,
 };
-
-typedef struct {
-	uint64_t owner_pay, developer_pay, validator_pay;
-} FinishProposal;
 
 enum ActionId {
 	ActCreateProject,
@@ -55,6 +59,7 @@ enum ActionId {
 const uint8_t init_seed[] = {'s', 'y', 'n', 'a', 'p', 's', 'i', 's', 's', 'e', 'e', 'd', };
 const uint8_t valbits_seed[] = {'s', 'y', 'n', 'a', 'p', '_', 's', 't', 'a', 't', 'e', '!', };
 
+// Checks that all verifiers have signed
 bool check_all_verifiers_accepted(const uint8_t* data, size_t size)
 {
 	for (size_t i=0; i < size; ++i)
@@ -63,6 +68,7 @@ bool check_all_verifiers_accepted(const uint8_t* data, size_t size)
 	return true;
 }
 
+// Checks that at least the required amount of verifiers have signed the proposal
 bool check_needed_validators_accepted(const uint8_t *data, size_t size, Fraction req)
 {
 	size_t count=0;
@@ -76,6 +82,7 @@ bool check_needed_validators_accepted(const uint8_t *data, size_t size, Fraction
 	return false;
 }
 
+// Creates a project
 extern uint64_t create_project(SolParameters *params){
     if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
@@ -127,6 +134,7 @@ extern uint64_t create_project(SolParameters *params){
                            &signers_seeds, 1);
 }
 
+// A verifier accepts the role in the project
 extern uint64_t accept_ver_role(SolParameters *params) {
     if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
@@ -164,6 +172,7 @@ extern uint64_t accept_ver_role(SolParameters *params) {
 
     if (!check_all_verifiers_accepted(state->data, project_details->num_validators))
     {
+	    // there is still unconfirmed verifiers
 	    SolAccountMeta arguments[] = {{ source_info->owner, true, true }};
 
 	    SolSignerSeeds signers_seeds = (SolSignerSeeds){valbits_seed, SOL_ARRAY_SIZE(valbits_seed)};
@@ -178,7 +187,7 @@ extern uint64_t accept_ver_role(SolParameters *params) {
     }
     else
     {
-	    // Change to bidding state
+	    // Once all verifiers have accepted the projects moves into the bidding state
 	    project_details->state = StateBidding;
 
 	    SolAccountMeta arguments[] = {{ source_info->owner, true, true }};
@@ -195,6 +204,7 @@ extern uint64_t accept_ver_role(SolParameters *params) {
     }
 }
 
+// a developer submits a project budget and it is recorded in the temp state
 extern uint64_t submit_bid(SolParameters *params){
     if(params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
@@ -248,6 +258,7 @@ extern uint64_t submit_bid(SolParameters *params){
                     &signers_seeds, 1);
 }
 
+// the project owner selects a bid from the bid list
 extern uint64_t select_bid(SolParameters *params){
     if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
@@ -290,6 +301,9 @@ extern uint64_t select_bid(SolParameters *params){
                     &signers_seeds, 1);
 }
 
+// if the owner and the developer don't come to a concensus, a conflict can be raised
+// a raised conflict allows the verifiers to make a decision on the behalf of the owner
+// and the developer
 extern uint64_t begin_conflict(SolParameters *params){
     if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
@@ -327,6 +341,7 @@ extern uint64_t begin_conflict(SolParameters *params){
                     &signers_seeds, 1);
 }
 
+// creates a proposal
 extern uint64_t create_proposal(SolParameters *params){
     if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
@@ -394,6 +409,7 @@ extern uint64_t create_proposal(SolParameters *params){
                     &signers_seeds, 1);
 }
 
+// the owner, developer and verifier can sign a proposal
 extern uint64_t sign_proposal(SolParameters *params){
     if (params->ka_num != 4){
         return ERROR_NOT_ENOUGH_ACCOUNT_KEYS;
