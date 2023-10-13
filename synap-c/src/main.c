@@ -188,10 +188,10 @@ extern uint64_t begin_bid(SolParameters *params){
 
     BidInfo *bid_info = (BidInfo*)info->data;
 
-    void* new_state = malloc((++bid_state->num_bidders) * sizeof(bid_info)));
-    memcpy(bid_state, new_state, (bid_state->num_bidders - 1) * sizeof(bid_info));
+    void* new_state = sol_calloc((++bid_state->num_bidders) * sizeof(BidInfo), 1);
+    memcpy(bid_state, new_state, (bid_state->num_bidders - 1) * sizeof(BidInfo));
 
-    memcpy(bid_info, new_state+(bid_state->num_bidders - 1) * sizeof(bid_info), sizeof(BidInfo));
+    memcpy(bid_info, new_state+(bid_state->num_bidders - 1) * sizeof(BidInfo), sizeof(BidInfo));
 
     SolAccountMeta arguments[] = {{ params->ka[0].owner, true, true }};
 
@@ -199,7 +199,7 @@ extern uint64_t begin_bid(SolParameters *params){
 
     SolInstruction instruction = (SolInstruction) {source_info->key, arguments,
         SOL_ARRAY_SIZE(arguments), new_state,
-        bid_state->num_bidders * sizeof(bid_info);
+        bid_state->num_bidders * sizeof(BidInfo)};
 
     // temporary validator state
     return sol_invoke_signed(&instruction, params->ka, params->ka_num,
