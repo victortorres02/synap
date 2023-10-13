@@ -1,6 +1,8 @@
 import "@/styles/globals.css";
 import { ChainId, ThirdwebProvider } from "@thirdweb-dev/react";
+import 'w3-css'; // Importa el estilo de w3.css
 import './demo.css';
+
 
 import * as React from 'react'
 
