@@ -1,6 +1,5 @@
 import { NavBar } from "./NavBar"
 import { Grid, GridItem, Input, Textarea, Select } from '@chakra-ui/react'
-import logo from './images/logo.png';
 
 function Header() {
     return (
@@ -53,7 +52,13 @@ export default function Main() {
             >
 
                 <GridItem colSpan={3} rowSpan={2} bg='black'>
-                    <img src={logo} alt="Norway" style={{ width: '100%', height: '450px', objectFit: 'cover' }} />
+                    <div style={{ position: 'relative', width: '800px', height: '400px', margin: 'auto' }}>
+                        <img
+                            src="https://i.postimg.cc/mDbd0Pq8/logo.png"
+                            alt="Norway"
+                            style={{objectFit: 'cover', position: 'absolute', top: '150px', left: '0' }}
+                        />
+                    </div>
                 </GridItem>
                 <GridItem rowSpan={2} colSpan={2} bg='#81E6D9' style={{ padding: '20px' }}>
                     <Header />

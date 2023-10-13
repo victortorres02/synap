@@ -1,8 +1,9 @@
 import { NavBar } from "./NavBar"
+import candidates from '../pages/store/candidates.json';
 
 function Desarrollador({ name, rating, imagen }) {
     return (
-        <div className="w3-third w3-margin-bottom">
+        <div className="w3-third w3-margin-bottom" style={{borderRadius:'100px'}}>
             <img src={imagen} alt="Norway" style={{ width: '100%', height: '450px', objectFit: 'cover' }} />
             <div className="w3-container w3-white">
                 <h3>{name}</h3>
@@ -19,14 +20,15 @@ function Desarrollador({ name, rating, imagen }) {
 }
 
 function Encuentra() {
-    var imagen1 = "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-    var imagen2 = "https://covalto-production-website.s3.amazonaws.com/Hero_Mobile_Cuenta_Personas_V1_1_8046e424ea.webp"
-    var imagen3 = "https://pymstatic.com/5844/conversions/personas-emocionales-wide_webp.webp"
     return (
         <div className="w3-row-padding w3-padding-16">
-            <Desarrollador name="David Páez" rating="4.7" imagen={imagen1} />
-            <Desarrollador name="Axel Raul" rating="3.4" imagen={imagen2} />
-            <Desarrollador name="Sofia Garcia" rating="4.3" imagen={imagen3} />
+            {candidates.map((candidate, index) => (
+                <Desarrollador
+                name={candidate.name}
+                rating={candidate.rating}
+                imagen={candidate.image}
+                />
+            ))}
         </div>
     )
 }
@@ -40,13 +42,14 @@ export default function main() {
             <br />
             <Encuentra />
             <div>
-                <div style={{ margin: '20px 0 0 80px', fontSize: '20px' }}>
-                    <h3>Publica tu Proyecto</h3>
-                    <a style={{ margin: '0 0 0 100px', fontSize: '20px' }} className="w3-button w3-dark-grey" href="./crearProyecto">
-                        <i className="fa fa-search w3-margin-right">Crear Proyecto</i>
+                <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0 0 80px', fontSize: '20px' }}>
+                    <h3 style={{ marginRight: '20px' }}>Publica tu Proyecto</h3>
+                    <a className="w3-button w3-dark-grey" href="./crearProyecto">
+                        <i className="fa fa-search w3-margin-right"></i> Crear Proyecto
                     </a>
                 </div>
             </div>
+            <br />
         </div>
     )
 }

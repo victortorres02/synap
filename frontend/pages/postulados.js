@@ -29,9 +29,6 @@ function Postulados() {
                 imagen={candidate.image}
                 />
             ))}
-            <Desarrollador name="David Páez" rating="4.7" imagen={imagen1}/>
-            <Desarrollador name="Axel Raul" rating="3.4" imagen={imagen2}/>
-            <Desarrollador name="Sofia Garcia" rating="4.3" imagen={imagen3}/>
         </div>
     )
 }
