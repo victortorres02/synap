@@ -55,12 +55,25 @@ enum ActionId {
 const uint8_t init_seed[] = {'s', 'y', 'n', 'a', 'p', 's', 'i', 's', 's', 'e', 'e', 'd', };
 const uint8_t valbits_seed[] = {'s', 'y', 'n', 'a', 'p', '_', 's', 't', 'a', 't', 'e', '!', };
 
-bool check_all_verifiers_accepted(uint8_t* data, size_t size)
+bool check_all_verifiers_accepted(const uint8_t* data, size_t size)
 {
 	for (size_t i=0; i < size; ++i)
-		if (data[i/8]&(1<<(i%8)))
+		if (!(data[i/8]&(1<<(i%8))))
 			return false;
 	return true;
+}
+
+bool check_needed_validators_accepted(const uint8_t *data, size_t size, Fraction req)
+{
+	size_t count=0;
+	uint64_t needed = (uint64_t)size*req.numerator/req.denominator;
+
+	for (size_t i=0; i < size; ++i)
+		if (data[i/8]&(1<<(i%8)))
+			if (++count >= needed)
+				return true;
+
+	return false;
 }
 
 extern uint64_t create_project(SolParameters *params){
@@ -446,7 +459,9 @@ extern uint64_t sign_proposal(SolParameters *params){
 			    pp[i/8] |= 1 << (i%8);
 		    }
 
-	    if (check_all_verifiers_accepted(pp, project_details->num_validators))
+	    if (check_needed_validators_accepted(pp,
+				    project_details->num_validators,
+				    project_details->validator_needed_percentage))
 		    goto do_proposal;
     }
 
