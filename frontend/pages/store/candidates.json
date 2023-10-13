@@ -1,0 +1,17 @@
+[
+    {
+      "name": "David Páez",
+      "rating": 4.7,
+      "image": "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+    },
+    {
+      "name": "Axel Raul",
+      "rating": 3.4,
+      "image": "https://covalto-production-website.s3.amazonaws.com/Hero_Mobile_Cuenta_Personas_V1_1_8046e424ea.webp"
+    },
+    {
+      "name": "Sofia Garcia",
+      "rating": 4.3,
+      "image": "https://pymstatic.com/5844/conversions/personas-emocionales-wide_webp.webp"
+    }
+]

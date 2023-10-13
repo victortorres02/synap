@@ -1,4 +1,5 @@
-import { NavBar } from "./NavBar"
+import { NavBar } from "./NavBar";
+import candidates from '../pages/store/candidates.json';
 
 function Desarrollador({name, rating, imagen}) {
     return (
@@ -19,11 +20,15 @@ function Desarrollador({name, rating, imagen}) {
 }
 
 function Postulados() {
-    var imagen1 = "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-    var imagen2 = "https://covalto-production-website.s3.amazonaws.com/Hero_Mobile_Cuenta_Personas_V1_1_8046e424ea.webp"
-    var imagen3 = "https://pymstatic.com/5844/conversions/personas-emocionales-wide_webp.webp"
     return (
         <div className="w3-row-padding w3-padding-16">
+            {candidates.map((candidate, index) => (
+                <Desarrollador
+                name={candidate.name}
+                rating={candidate.rating}
+                imagen={candidate.image}
+                />
+            ))}
             <Desarrollador name="David Páez" rating="4.7" imagen={imagen1}/>
             <Desarrollador name="Axel Raul" rating="3.4" imagen={imagen2}/>
             <Desarrollador name="Sofia Garcia" rating="4.3" imagen={imagen3}/>
